@@ -1,0 +1,97 @@
+name: CI/CD - Funcionários
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    name: Testes
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Executar script de setup (instala software necessário)
+        run: bash scripts/setup.sh
+
+      - name: Rodar testes (Jest ESM) com coverage e relatório JSON
+        run: |
+          mkdir -p test-report
+          npm test -- --coverage --json --outputFile=test-report/jest-report.json
+
+      - name: Publicar artefatos de teste
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-artifacts
+          path: |
+            coverage/
+            test-report/jest-report.json
+          if-no-files-found: warn
+
+  build:
+    name: Empacotamento
+    runs-on: ubuntu-latest
+    # Roda em paralelo ao 'tests' (sem needs)
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Executar script de setup (instala software necessário)
+        run: bash scripts/setup.sh
+
+      - name: Empacotar (npm pack) e zipar código-fonte
+        run: |
+          mkdir -p artifacts
+          npm pack --silent
+          mv *.tgz artifacts/
+          zip -r artifacts/source.zip funcionarios package.json jest.config.mjs index.js
+
+      - name: Publicar artefatos de build
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts
+          path: artifacts/
+
+  notify:
+    name: Notificação
+    runs-on: ubuntu-latest
+    needs: [tests, build]   # depende dos dois; eles rodam em paralelo
+    env:
+      EMAIL_TO: ${{ secrets.EMAIL_TO }}
+      STATUS_TESTS: ${{ needs.tests.result }}
+      STATUS_BUILD: ${{ needs.build.result }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Enviar e-mail (script)
+        run: node scripts/send_email.js

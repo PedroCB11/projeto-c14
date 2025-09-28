@@ -13,7 +13,7 @@ const makeRepoMock = () => ({
 describe('EmployeeService (unit com mock do repo)', () => {
   const base = { name: 'Maria Silva', email: 'maria@ex.com' };
 
-  test('create: sucesso', async () => {
+  test('teste 8 -> create: sucesso', async () => {
     const repo = makeRepoMock();
     repo.findByEmail.mockResolvedValue(null);
     repo.create.mockResolvedValue({ id: 'EMP-20250101010101-1', ...base });
@@ -27,21 +27,21 @@ describe('EmployeeService (unit com mock do repo)', () => {
     expect(emp.email).toBe('maria@ex.com');
   });
 
-  test('create: valida nome curto', async () => {
+  test('teste 9 -> create: valida nome curto', async () => {
     const repo = makeRepoMock();
     const svc = new EmployeeService(repo);
     await expect(svc.create({ name: 'Jo', email: 'jo@ex.com' }))
       .rejects.toThrow('ValidationError');
   });
 
-  test('create: valida email inválido', async () => {
+  test('teste 10 -> create: valida email inválido', async () => {
     const repo = makeRepoMock();
     const svc = new EmployeeService(repo);
     await expect(svc.create({ name: 'Joao', email: 'email-invalido' }))
       .rejects.toThrow('ValidationError');
   });
 
-  test('create: email duplicado', async () => {
+  test('teste 11 -> create: email duplicado', async () => {
     const repo = makeRepoMock();
     repo.findByEmail.mockResolvedValue({ id: 'X', ...base });
     const svc = new EmployeeService(repo);
@@ -49,7 +49,7 @@ describe('EmployeeService (unit com mock do repo)', () => {
     await expect(svc.create(base)).rejects.toThrow('ValidationError');
   });
 
-  test('getById: sucesso', async () => {
+  test('teste 12 -> getById: sucesso', async () => {
     const repo = makeRepoMock();
     repo.findById.mockResolvedValue({ id: 'EMP-1', ...base });
 
@@ -60,7 +60,7 @@ describe('EmployeeService (unit com mock do repo)', () => {
     expect(emp.id).toBe('EMP-1');
   });
 
-  test('getById: not found', async () => {
+  test('teste 13 -> getById: not found', async () => {
     const repo = makeRepoMock();
     repo.findById.mockResolvedValue(null);
 
@@ -68,7 +68,7 @@ describe('EmployeeService (unit com mock do repo)', () => {
     await expect(svc.getById('EMP-404')).rejects.toThrow('NotFound');
   });
 
-  test('getByEmail: sucesso', async () => {
+  test('teste 14 -> getByEmail: sucesso', async () => {
     const repo = makeRepoMock();
     repo.findByEmail.mockResolvedValue({ id: 'EMP-2', ...base });
 
@@ -79,7 +79,7 @@ describe('EmployeeService (unit com mock do repo)', () => {
     expect(emp.id).toBe('EMP-2');
   });
 
-  test('getByEmail: not found', async () => {
+  test('teste 15 -> getByEmail: not found', async () => {
     const repo = makeRepoMock();
     repo.findByEmail.mockResolvedValue(null);
 
@@ -87,7 +87,7 @@ describe('EmployeeService (unit com mock do repo)', () => {
     await expect(svc.getByEmail('none@ex.com')).rejects.toThrow('NotFound');
   });
 
-  test('list: delega para repo.list', async () => {
+  test('teste 16 -> list: delega para repo.list', async () => {
     const repo = makeRepoMock();
     repo.list.mockResolvedValue([{ id: 'EMP-1', ...base }]);
 

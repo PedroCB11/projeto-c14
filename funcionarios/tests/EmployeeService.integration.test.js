@@ -2,7 +2,7 @@ import { EmployeeRepoMemory } from '../src/EmployeeRepoMemory.js';
 import { EmployeeService } from '../src/EmployeeService.js';
 
 describe('EmployeeService + MemoryRepo (integração simples)', () => {
-  test('fluxo completo: create -> getById/getByEmail -> list', async () => {
+  test('teste 5 -> fluxo completo: create -> getById/getByEmail -> list', async () => {
     const repo = new EmployeeRepoMemory();
     const svc = new EmployeeService(repo);
 
@@ -19,7 +19,7 @@ describe('EmployeeService + MemoryRepo (integração simples)', () => {
     expect(all.map(x => x.id)).toEqual(expect.arrayContaining([ana.id, joao.id]));
   });
 
-  test('create: falha em email duplicado (repo real)', async () => {
+  test('teste 6 -> create: falha em email duplicado (repo real)', async () => {
     const repo = new EmployeeRepoMemory();
     const svc = new EmployeeService(repo);
 
@@ -28,7 +28,7 @@ describe('EmployeeService + MemoryRepo (integração simples)', () => {
       .rejects.toThrow('ValidationError');
   });
 
-  test('create: falha de validação (nome curto / email ruim)', async () => {
+  test('teste 7 -> create: falha de validação (nome curto / email ruim)', async () => {
     const repo = new EmployeeRepoMemory();
     const svc = new EmployeeService(repo);
     await expect(svc.create({ name: 'Al', email: 'a@a.com' })).rejects.toThrow('ValidationError');

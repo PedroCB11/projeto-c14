@@ -25,13 +25,14 @@ jobs:
         working-directory: ./funcionarios
         run: npm install
 
-      - name: Executar script de setup (instala software necessário)
+      - name: Executar script de setup
         working-directory: ./funcionarios
         run: bash scripts/setup.sh
 
       - name: Rodar testes (Jest ESM) com coverage e relatório JSON
         working-directory: ./funcionarios
         run: |
+          rm -rf coverage test-report
           mkdir -p test-report
           npm test -- --coverage --json --outputFile=test-report/jest-report.json
 
@@ -42,6 +43,7 @@ jobs:
           name: test-artifacts
           path: |
             funcionarios/coverage/
+            funcionarios/coverage/index.html
             funcionarios/test-report/jest-report.json
           if-no-files-found: warn
 

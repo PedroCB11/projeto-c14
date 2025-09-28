@@ -1,4 +1,4 @@
-// ⚠️ garanta que o arquivo se chama exatamente "Employee.js"
+// EmployeeService.js
 import { Employee } from './Employee.js';
 
 export class EmployeeService {
@@ -6,14 +6,19 @@ export class EmployeeService {
     this.repo = repo;
   }
 
+  /**
+   * Normaliza e valida. Retorna { name, email } já com trim.
+   * Lança Error('ValidationError') se houver problemas.
+   */
   _validate(input) {
+    const name = typeof input?.name === 'string' ? input.name.trim() : '';
+    const email = typeof input?.email === 'string' ? input.email.trim() : '';
+
     const errors = [];
-    if (!input?.name || input.name.trim().length < 3) {
+    if (!name || name.length < 3) {
       errors.push({ field: 'name', message: 'name must be at least 3 chars' });
     }
-    const okEmail =
-      typeof input?.email === 'string' &&
-      /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.email);
+    const okEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     if (!okEmail) errors.push({ field: 'email', message: 'invalid email' });
 
     if (errors.length) {
@@ -21,16 +26,15 @@ export class EmployeeService {
       e.errors = errors;
       throw e;
     }
+    return { name, email };
   }
 
   /** cria e retorna o funcionário com ID único */
   async create(input) {
-    this._validate(input);
+    // ✅ usa dados normalizados
+    const { name, email } = this._validate(input);
 
-    const name = input.name.trim();
-    const email = input.email.trim();
-
-    // ✅ checa duplicidade e padroniza erro como ValidationError
+    // checa duplicidade com erro padronizado
     const exists = await this.repo.findByEmail(email);
     if (exists) {
       const e = new Error('ValidationError');
@@ -55,7 +59,7 @@ export class EmployeeService {
 
   /** identifica por email */
   async getByEmail(email) {
-    const found = await this.repo.findByEmail(email.trim());
+    const found = await this.repo.findByEmail(String(email).trim());
     if (!found) {
       const e = new Error('NotFound');
       e.code = 'NOT_FOUND';
@@ -67,6 +71,6 @@ export class EmployeeService {
   /** lista todos */
   async list() {
     const all = await this.repo.list();
-    return all.map((r) => new Employee(r));
+    return all.map(r => new Employee(r));
   }
 }

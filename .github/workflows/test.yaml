@@ -61,7 +61,7 @@ jobs:
         working-directory: ./funcionarios
         run: npm install
 
-      - name: Executar script de setup (instala software necessário)
+      - name: Executar script de setup
         working-directory: ./funcionarios
         run: bash scripts/setup.sh
 

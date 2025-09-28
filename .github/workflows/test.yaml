@@ -29,7 +29,7 @@ jobs:
         working-directory: ./funcionarios
         run: bash scripts/setup.sh
 
-      - name: Rodar testes (Jest ESM) com coverage e relatório JSON
+      - name: Rodar testes (Jest ESM) com coverage e relatórios HTML + JSON
         working-directory: ./funcionarios
         run: |
           rm -rf coverage test-report
@@ -43,9 +43,10 @@ jobs:
           name: test-artifacts
           path: |
             funcionarios/coverage/
-            funcionarios/coverage/index.html
+            funcionarios/test-report/jest-report.html
             funcionarios/test-report/jest-report.json
           if-no-files-found: warn
+
 
   build:
     name: Empacotamento

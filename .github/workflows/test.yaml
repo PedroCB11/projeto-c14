@@ -20,15 +20,17 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
 
       - name: Instalar dependências
+        working-directory: ./funcionarios
         run: npm install
 
       - name: Executar script de setup (instala software necessário)
+        working-directory: ./funcionarios
         run: bash scripts/setup.sh
 
       - name: Rodar testes (Jest ESM) com coverage e relatório JSON
+        working-directory: ./funcionarios
         run: |
           mkdir -p test-report
           npm test -- --coverage --json --outputFile=test-report/jest-report.json
@@ -39,14 +41,13 @@ jobs:
         with:
           name: test-artifacts
           path: |
-            coverage/
-            test-report/jest-report.json
+            funcionarios/coverage/
+            funcionarios/test-report/jest-report.json
           if-no-files-found: warn
 
   build:
     name: Empacotamento
     runs-on: ubuntu-latest
-    # roda em paralelo com 'tests'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -55,26 +56,28 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
 
       - name: Instalar dependências
+        working-directory: ./funcionarios
         run: npm install
 
       - name: Executar script de setup (instala software necessário)
+        working-directory: ./funcionarios
         run: bash scripts/setup.sh
 
       - name: Empacotar (npm pack) e zipar código-fonte
+        working-directory: ./funcionarios
         run: |
           mkdir -p artifacts
           npm pack --silent
           mv *.tgz artifacts/
-          zip -r artifacts/source.zip funcionarios package.json jest.config.mjs index.js
+          zip -r artifacts/source.zip src tests package.json jest.config.mjs index.js
 
       - name: Publicar artefatos de build
         uses: actions/upload-artifact@v4
         with:
           name: build-artifacts
-          path: artifacts/
+          path: funcionarios/artifacts/
 
   notify:
     name: Notificação
@@ -94,4 +97,5 @@ jobs:
           node-version: 20
 
       - name: Enviar e-mail (script)
+        working-directory: ./funcionarios
         run: node scripts/send_email.js

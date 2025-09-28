@@ -1,4 +1,5 @@
-import { Employee } from './employee.js';
+// ⚠️ garanta que o arquivo se chama exatamente "Employee.js"
+import { Employee } from './Employee.js';
 
 export class EmployeeService {
   constructor(repo) {
@@ -10,37 +11,62 @@ export class EmployeeService {
     if (!input?.name || input.name.trim().length < 3) {
       errors.push({ field: 'name', message: 'name must be at least 3 chars' });
     }
-    const okEmail = typeof input?.email === 'string' && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.email);
+    const okEmail =
+      typeof input?.email === 'string' &&
+      /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.email);
     if (!okEmail) errors.push({ field: 'email', message: 'invalid email' });
+
     if (errors.length) {
-      const e = new Error('ValidationError'); e.errors = errors; throw e;
+      const e = new Error('ValidationError');
+      e.errors = errors;
+      throw e;
     }
   }
 
   /** cria e retorna o funcionário com ID único */
   async create(input) {
     this._validate(input);
-    const saved = await this.repo.create({ name: input.name.trim(), email: input.email.trim() });
+
+    const name = input.name.trim();
+    const email = input.email.trim();
+
+    // ✅ checa duplicidade e padroniza erro como ValidationError
+    const exists = await this.repo.findByEmail(email);
+    if (exists) {
+      const e = new Error('ValidationError');
+      e.errors = [{ field: 'email', message: 'email already in use' }];
+      throw e;
+    }
+
+    const saved = await this.repo.create({ name, email });
     return new Employee(saved);
   }
 
   /** identifica por ID */
   async getById(id) {
     const found = await this.repo.findById(id);
-    if (!found) { const e = new Error('NotFound'); e.code = 'NOT_FOUND'; throw e; }
+    if (!found) {
+      const e = new Error('NotFound');
+      e.code = 'NOT_FOUND';
+      throw e;
+    }
     return new Employee(found);
   }
 
   /** identifica por email */
   async getByEmail(email) {
     const found = await this.repo.findByEmail(email.trim());
-    if (!found) { const e = new Error('NotFound'); e.code = 'NOT_FOUND'; throw e; }
+    if (!found) {
+      const e = new Error('NotFound');
+      e.code = 'NOT_FOUND';
+      throw e;
+    }
     return new Employee(found);
   }
 
-  /** lista todos (útil para ver quem é quem) */
+  /** lista todos */
   async list() {
     const all = await this.repo.list();
-    return all.map(r => new Employee(r));
+    return all.map((r) => new Employee(r));
   }
 }

@@ -88,6 +88,8 @@ jobs:
     needs: [tests, build]
     env:
       EMAIL_TO: ${{ secrets.EMAIL_TO }}
+      EMAIL_USER: ${{ secrets.EMAIL_USER }}
+      EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
       STATUS_TESTS: ${{ needs.tests.result }}
       STATUS_BUILD: ${{ needs.build.result }}
     steps:

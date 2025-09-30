@@ -101,6 +101,10 @@ jobs:
         with:
           node-version: 20
 
+      - name: Install dependencies
+      working-directory: ./funcionarios
+      run: npm install
+
       - name: Enviar e-mail (script)
         working-directory: ./funcionarios
         run: node scripts/send_email.js

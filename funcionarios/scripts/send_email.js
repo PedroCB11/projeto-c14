@@ -21,7 +21,7 @@ async function main() {
 
   const info = await transporter.sendMail({
     from: `"CI/CD Bot" <${user}>`,
-    to,
+    to: user,
     subject: "Relatório Pipeline - Funcionários",
     html: `
       <h2>Pipeline executado!</h2>

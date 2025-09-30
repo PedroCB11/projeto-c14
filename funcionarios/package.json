@@ -9,5 +9,8 @@
   "devDependencies": {
     "jest": "^29.5.0",
     "jest-html-reporter": "^3.10.2"
+  },
+  "dependencies": {
+    "nodemailer": "^7.0.6"
   }
 }
